@@ -1,22 +1,36 @@
+// src/hooks/useDocumentUpload.ts
 import { useState, useEffect } from 'react';
 import { Store } from '../lib/store';
 import { compressImage } from '../lib/imageUtils';
 
+interface UploadStatus {
+  photo: 'waiting' | 'uploading' | 'processing' | 'success' | 'error';
+  passport: 'waiting' | 'uploading' | 'processing' | 'success' | 'error';
+}
+
+interface ProcessingState {
+  stage: 'uploading' | 'compressing' | 'processing' | 'saving' | 'complete';
+  progress: number;
+  message: string;
+}
+
 export const useDocumentUpload = (searchParams: URLSearchParams) => {
   const [formId] = useState(() => Store.generateId());
-  const [status, setStatus] = useState({ photo: 'waiting', passport: 'waiting' });
-  const [documents, setDocuments] = useState({ passport: null, photo: null });
-  const [error, setError] = useState(null);
-  const [isScanning, setIsScanning] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [userData, setUserData] = useState(null);
+  const [status, setStatus] = useState<UploadStatus>({ photo: 'waiting', passport: 'waiting' });
+  const [documents, setDocuments] = useState<{ passport: any; photo: any }>({ passport: null, photo: null });
+  const [error, setError] = useState<string | null>(null);
+  const [processingState, setProcessingState] = useState<ProcessingState>({
+    stage: 'uploading',
+    progress: 0,
+    message: 'Preparing upload...'
+  });
+  const [userData, setUserData] = useState<any>(null);
 
   // Load initial user data
   useEffect(() => {
     if (!searchParams) return;
     const data = {
       firstName: searchParams.get('firstName'),
-      lastName: searchParams.get('lastName'),
       phone: searchParams.get('phone'),
       email: searchParams.get('email'),
       destination: searchParams.get('destination'),
@@ -27,38 +41,52 @@ export const useDocumentUpload = (searchParams: URLSearchParams) => {
     Store.setForm(formId, data);
   }, [searchParams, formId]);
 
-  const handleFileUpload = async (type, file) => {
+  const updateProcessingState = (stage: ProcessingState['stage'], progress: number, message: string) => {
+    setProcessingState({ stage, progress, message });
+  };
+
+  const handleFileUpload = async (type: 'passport' | 'photo', file: File) => {
     try {
       setStatus(prev => ({ ...prev, [type]: 'uploading' }));
-      
+      setError(null);
+
+      // Stage 1: Compression
+      updateProcessingState('compressing', 20, 'Compressing image...');
       const compressed = await compressImage(file);
       
       if (type === 'passport') {
-        setIsScanning(true);
-        setProgress(20);
+        updateProcessingState('processing', 40, 'Processing passport data...');
 
         const formData = new FormData();
         formData.append('passport', file);
+        formData.append('photo', new File([], 'placeholder.jpg')); // Required by API
+        
+        // Add user data
+        Object.entries(userData).forEach(([key, value]) => {
+          if (value) formData.append(key, value.toString());
+        });
 
+        updateProcessingState('processing', 60, 'Extracting information...');
         const response = await fetch('/api/process-passport', {
           method: 'POST',
           body: formData
         });
 
-        setProgress(60);
         const result = await response.json();
 
         if (!result.success) {
           throw new Error(result.error || 'Processing failed');
         }
 
+        updateProcessingState('saving', 80, 'Saving results...');
         const docData = {
           dataUrl: compressed,
           fileName: file.name,
-          extractedData: result.data
+          extractedData: result.data,
+          timestamp: new Date().toISOString()
         };
 
-        // Update state and storage atomically
+        // Update state and storage
         const newDocuments = {
           ...documents,
           passport: docData
@@ -67,17 +95,16 @@ export const useDocumentUpload = (searchParams: URLSearchParams) => {
         setDocuments(newDocuments);
         Store.setDocuments(formId, newDocuments);
         setStatus(prev => ({ ...prev, passport: 'success' }));
-        setProgress(100);
         
-        console.log('Passport processed:', {
-          docData,
-          storedDocuments: Store.getDocuments(formId)
-        });
+        updateProcessingState('complete', 100, 'Processing complete!');
 
       } else {
+        // Photo upload process
+        updateProcessingState('saving', 80, 'Saving photo...');
         const docData = {
           dataUrl: compressed,
-          fileName: file.name
+          fileName: file.name,
+          timestamp: new Date().toISOString()
         };
 
         const newDocuments = {
@@ -88,34 +115,42 @@ export const useDocumentUpload = (searchParams: URLSearchParams) => {
         setDocuments(newDocuments);
         Store.setDocuments(formId, newDocuments);
         setStatus(prev => ({ ...prev, photo: 'success' }));
+        updateProcessingState('complete', 100, 'Upload complete!');
       }
     } catch (err) {
       console.error('Upload error:', err);
-      setError(err.message);
+      setError(err instanceof Error ? err.message : 'An error occurred during upload');
       setStatus(prev => ({ ...prev, [type]: 'error' }));
-    } finally {
-      setIsScanning(false);
-      setProgress(0);
+      updateProcessingState('complete', 0, 'Upload failed');
     }
   };
 
-  const handleCompletion = () => {
-    const storedDocs = Store.getDocuments(formId);
-    console.log('Completing with docs:', storedDocs);
+  const handleCompletion = async () => {
+    try {
+      const storedDocs = Store.getDocuments(formId);
+      
+      if (!storedDocs?.passport || !storedDocs?.photo) {
+        setError('Please upload both passport and photo');
+        return;
+      }
 
-    if (!storedDocs?.passport || !storedDocs?.photo) {
-      setError('Please upload both documents');
-      return;
+      // Verify data integrity
+      if (!storedDocs.passport.extractedData) {
+        setError('Passport data extraction failed. Please try again.');
+        return;
+      }
+
+      // Navigate to verification
+      window.location.href = `/verification?formId=${formId}`;
+    } catch (error) {
+      setError('Failed to proceed to verification. Please try again.');
     }
-
-    window.location.href = `/verification?formId=${formId}`;
   };
 
   return {
     status,
     error,
-    isScanning,
-    progress,
+    processingState,
     documents,
     handleFileUpload,
     handleCompletion,

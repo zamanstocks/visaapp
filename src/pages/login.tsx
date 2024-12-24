@@ -12,7 +12,6 @@ export default function LoginPage() {
   const [formData, setFormData] = useState({
     // User input in login page
     firstName: '',
-    lastName: '',
     phoneNumber: '',
     email: '',
     
@@ -31,10 +30,10 @@ export default function LoginPage() {
   });
 
   const [selectedCountry, setSelectedCountry] = useState({
-    code: '+91',
-    flag: '🇮🇳',
-    name: 'India',
-    maxLength: 10
+    code: '+968',
+    flag: '🇴🇲',
+    name: 'Oman',
+    maxLength: 8
   });
 
   const [showCountrySelect, setShowCountrySelect] = useState(false);
@@ -49,8 +48,8 @@ export default function LoginPage() {
   const otpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const countries = [
-    { code: '+91', flag: '🇮🇳', name: 'India', maxLength: 10 },
     { code: '+968', flag: '🇴🇲', name: 'Oman', maxLength: 8 },
+    { code: '+91', flag: '🇮🇳', name: 'India', maxLength: 10 },
     { code: '+971', flag: '🇦🇪', name: 'UAE', maxLength: 9 },
     { code: '+966', flag: '🇸🇦', name: 'Saudi Arabia', maxLength: 9 },
     { code: '+974', flag: '🇶🇦', name: 'Qatar', maxLength: 8 },
@@ -143,13 +142,9 @@ export default function LoginPage() {
           
           if (response.ok) {
             const queryParams = new URLSearchParams({
-              // User data collected in this page
               phone: `${selectedCountry.code}${formData.phoneNumber}`,
               firstName: formData.firstName,
-              lastName: formData.lastName,
               email: formData.email || '',
-              
-              // Pass through the simple parameters from URL
               destination: searchParams.get('destination') || '',
               nationality: searchParams.get('nationality') || '',
               visaType: searchParams.get('visaType') || ''
@@ -172,6 +167,7 @@ export default function LoginPage() {
       verifyOtp();
     }
   };
+
   const handleResendOtp = () => {
     setCountdown(60);
     setCanResend(false);
@@ -183,7 +179,7 @@ export default function LoginPage() {
       <div className="absolute top-6 left-6">
         <button 
           onClick={() => router.back()}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/80 backdrop-blur border border-gray-200 hover:border-blue-300 transition-all shadow-sm hover:shadow"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/80 backdrop-blur border border-gray-200 hover:border-blue-300 transition-all shadow-sm hover:shadow transform hover:scale-105"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back</span>
@@ -192,7 +188,7 @@ export default function LoginPage() {
 
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 transform hover:scale-105 transition-transform">
             <Smartphone className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
@@ -205,94 +201,72 @@ export default function LoginPage() {
             }
           </p>
           <div className="text-center mt-6">
-  <span 
-    onClick={() => {
-      const queryParams = new URLSearchParams({
-        firstName: "Zaman", // Hardcoded first name
-        lastName: "Khan", // Hardcoded last name
-        phone: "78204228", // Hardcoded phone number
-        destination: "United Arab Emirates", // Hardcoded destination
-        nationality: "Philippines", // Hardcoded nationality
-        visaType: "Tourist Visa", // Hardcoded visaType
-      }).toString();
-
-      router.push(`/form?${queryParams}`);
-    }}
-    className="<text-blue-200></text-blue-200> hover:text-blue-800 cursor-pointer text-sm md:text-base font-semibold underline decoration-dotted transition duration-300 ease-in-out"
-  >
-    Travel Agent Login
-  </span>
-</div>
-
+            <span 
+              onClick={() => {
+                const queryParams = new URLSearchParams({
+                  firstName: "Zaman",
+                  phone: "78204228",
+                  destination: "United Arab Emirates",
+                  nationality: "Philippines",
+                  visaType: "Tourist Visa",
+                }).toString();
+                router.push(`/form?${queryParams}`);
+              }}
+              className="text-blue-600 hover:text-blue-800 cursor-pointer text-sm md:text-base font-semibold underline decoration-dotted transition duration-300 ease-in-out transform hover:scale-105"
+            >
+              Travel Agent Login
+            </span>
+          </div>
         </div>
 
         {errorMessage && (
-          <div className="text-red-600 text-center mb-4 bg-red-50 p-3 rounded-lg flex items-center justify-center gap-2">
+          <div className="text-red-600 text-center mb-4 bg-red-50 p-3 rounded-lg flex items-center justify-center gap-2 animate-shake">
             <Shield className="w-5 h-5 text-red-500" />
             <span>{errorMessage}</span>
           </div>
         )}
 
-        <div className="bg-white rounded-2xl shadow-lg p-8 relative overflow-hidden">
-          {/* Gradient Overlay */}
+        <div className="bg-white rounded-2xl shadow-lg p-8 relative overflow-hidden transform hover:scale-[1.01] transition-all">
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-purple-600"></div>
 
           {currentStep === 'details' ? (
             <form onSubmit={handleSendOTP} className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                    <Check className="w-4 h-4 text-green-500" />
-                    First Name
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.firstName}
-                    onChange={(e) => handleInputChange('firstName', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="First name"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                    <Check className="w-4 h-4 text-green-500" />
-                    Last Name
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.lastName}
-                    onChange={(e) => handleInputChange('lastName', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Last name"
-                    required
-                  />
-                </div>
+              <div className="transform transition-all hover:scale-[1.01]">
+                <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                  <Check className="w-4 h-4 text-green-500" />
+                  First Name
+                </label>
+                <input
+                  type="text"
+                  value={formData.firstName}
+                  onChange={(e) => handleInputChange('firstName', e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                  placeholder="Enter your name"
+                  required
+                />
               </div>
 
-              <div>
+              <div className="transform transition-all hover:scale-[1.01]">
                 <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
                   <Phone className="w-4 h-4 text-blue-500" />
                   Phone Number
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 flex items-center">
-                    <button
-                      type="button"
-                      onClick={() => setShowCountrySelect(!showCountrySelect)}
-                      className="h-full px-4 flex items-center gap-2 hover:bg-gray-50 rounded-l-lg border-r"
-                    >
-                      <span className="text-xl">{selectedCountry.flag}</span>
-                      <span>{selectedCountry.code}</span>
-                      <ChevronDown className="w-4 h-4" />
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowCountrySelect(!showCountrySelect)}
+                    className="h-full absolute inset-y-0 left-0 px-4 flex items-center gap-2 hover:bg-gray-50 rounded-l-lg border-r transition-colors"
+                  >
+                    <span className="text-xl">{selectedCountry.flag}</span>
+                    <span>{selectedCountry.code}</span>
+                    <ChevronDown className="w-4 h-4" />
+                  </button>
+
                   <input
                     type="tel"
                     value={formData.phoneNumber}
                     onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
-                    className="w-full pl-32 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full pl-32 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                     placeholder={`Enter ${selectedCountry.maxLength} digits`}
                     maxLength={selectedCountry.maxLength}
                     required
@@ -307,10 +281,9 @@ export default function LoginPage() {
                           onClick={() => {
                             setSelectedCountry(country);
                             setShowCountrySelect(false);
-                            // Reset phone number when changing country
                             setFormData(prev => ({ ...prev, phoneNumber: '' }));
                           }}
-                          className="w-full px-4 py-2 flex items-center gap-3 hover:bg-blue-50"
+                          className="w-full px-4 py-2 flex items-center gap-3 hover:bg-blue-50 transition-colors"
                         >
                           <span className="text-xl">{country.flag}</span>
                           <span className="font-medium">{country.name}</span>
@@ -322,11 +295,11 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <div>
+              <div className="transform transition-all hover:scale-[1.01]">
                 <button
                   type="button"
                   onClick={() => setShowEmailOption(!showEmailOption)}
-                  className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-4"
+                  className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-4 transition-colors"
                 >
                   <Mail className="w-4 h-4" />
                   <span>Add email address (optional)</span>
@@ -337,7 +310,7 @@ export default function LoginPage() {
                     type="email"
                     value={formData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                     placeholder="Enter your email"
                   />
                 )}
@@ -346,12 +319,12 @@ export default function LoginPage() {
               <button 
                 type="submit"
                 disabled={isSendingOtp}
-                className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:opacity-90 flex items-center justify-center gap-2 disabled:opacity-50 transition-all"
+                className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:opacity-90 
+                          flex items-center justify-center gap-2 disabled:opacity-50 transition-all transform hover:scale-[1.02]"
               >
                 {isSendingOtp ? 'Sending...' : 'Send Verification Code'}
                 <Phone className="w-4 h-4" />
               </button>
-              
             </form>
           ) : (
             <div className="space-y-6">
@@ -366,7 +339,8 @@ export default function LoginPage() {
                     }}
                     value={digit}
                     onChange={(e) => handleOtpChange(index, e.target.value)}
-                    className="w-10 h-12 text-center text-xl border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                    className="w-10 h-12 text-center text-xl border border-gray-200 rounded-lg focus:outline-none 
+                    focus:ring-2 focus:ring-blue-500 transition-all transform hover:scale-105"
                     inputMode="numeric"
                     pattern="[0-9]"
                   />
@@ -382,7 +356,8 @@ export default function LoginPage() {
                 ) : (
                   <button
                     onClick={handleResendOtp}
-                    className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors"
+                    className="flex items-center gap-2 text-blue-600 hover:text-blue-800 
+                             transition-colors transform hover:scale-105"
                   >
                     <RefreshCw className="w-4 h-4" />
                     Resend Code
@@ -392,7 +367,9 @@ export default function LoginPage() {
 
               <button 
                 onClick={() => setCurrentStep('details')}
-                className="w-full py-3 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors flex items-center justify-center gap-2"
+                className="w-full py-3 border-2 border-blue-600 text-blue-600 rounded-lg 
+                          hover:bg-blue-50 transition-colors flex items-center justify-center 
+                          gap-2 transform hover:scale-[1.02]"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Change Phone Number
@@ -411,15 +388,18 @@ export default function LoginPage() {
         </div>
 
         <div className="mt-8 flex justify-center gap-6">
-          <button className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-2 transition-colors">
+          <button className="text-sm text-gray-600 hover:text-gray-900 flex items-center 
+                            gap-2 transition-colors transform hover:scale-105">
             <HelpCircle className="w-4 h-4" />
             Help
           </button>
-          <button className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-2 transition-colors">
+          <button className="text-sm text-gray-600 hover:text-gray-900 flex items-center 
+                            gap-2 transition-colors transform hover:scale-105">
             <Lock className="w-4 h-4" />
             Privacy
           </button>
-          <button className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-2 transition-colors">
+          <button className="text-sm text-gray-600 hover:text-gray-900 flex items-center 
+                            gap-2 transition-colors transform hover:scale-105">
             <FileText className="w-4 h-4" />
             Terms
           </button>

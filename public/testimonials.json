@@ -1,0 +1,11 @@
+[
+  {
+    "id": 1,
+    "name": "Sample Testimonial",
+    "title": "Consultant",
+    "text": "Great service!",
+    "rating": 5,
+    "image": "/testimonials/sample.jpg",
+    "company": "Sample Company"
+  }
+]

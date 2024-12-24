@@ -1,0 +1,15 @@
+{
+  "visas": [
+    {
+      "id": "uae-tourist-single",
+      "name": "UAE Tourist Visa",
+      "type": "Single Entry",
+      "price": 150,
+      "duration": "30 Days",
+      "processingTime": "3-5 Business Days",
+      "requirements": ["Passport"],
+      "accuracyIndex": 95,
+      "approvalIndex": 92
+    }
+  ]
+}

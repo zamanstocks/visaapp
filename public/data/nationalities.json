@@ -1,0 +1,606 @@
+{
+  "nationalities": [
+    {
+      "id": 1,
+      "name": "India",
+      "flag": "\ud83c\uddee\ud83c\uddf3",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 2,
+      "name": "Philippines",
+      "flag": "\ud83c\uddf5\ud83c\udded",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 3,
+      "name": "Sri Lanka",
+      "flag": "\ud83c\uddf1\ud83c\uddf0",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 4,
+      "name": "Nepal",
+      "flag": "\ud83c\uddf3\ud83c\uddf5",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 5,
+      "name": "United Arab Emirates",
+      "flag": "\ud83c\udde6\ud83c\uddea",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 6,
+      "name": "Oman",
+      "flag": "\ud83c\uddf4\ud83c\uddf2",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 7,
+      "name": "Saudi Arabia",
+      "flag": "\ud83c\uddf8\ud83c\udde6",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 8,
+      "name": "Kuwait",
+      "flag": "\ud83c\uddf0\ud83c\uddfc",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 9,
+      "name": "Qatar",
+      "flag": "\ud83c\uddf6\ud83c\udde6",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 10,
+      "name": "United States",
+      "flag": "\ud83c\uddfa\ud83c\uddf8",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 11,
+      "name": "United Kingdom",
+      "flag": "\ud83c\uddec\ud83c\udde7",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 12,
+      "name": "Canada",
+      "flag": "\ud83c\udde8\ud83c\udde6",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 13,
+      "name": "Germany",
+      "flag": "\ud83c\udde9\ud83c\uddea",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 14,
+      "name": "Australia",
+      "flag": "\ud83c\udde6\ud83c\uddfa",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 15,
+      "name": "Japan",
+      "flag": "\ud83c\uddef\ud83c\uddf5",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 16,
+      "name": "China",
+      "flag": "\ud83c\udde8\ud83c\uddf3",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 17,
+      "name": "South Korea",
+      "flag": "\ud83c\uddf0\ud83c\uddf7",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 18,
+      "name": "South Africa",
+      "flag": "\ud83c\uddff\ud83c\udde6",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 19,
+      "name": "Brazil",
+      "flag": "\ud83c\udde7\ud83c\uddf7",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 20,
+      "name": "Mexico",
+      "flag": "\ud83c\uddf2\ud83c\uddfd",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 21,
+      "name": "France",
+      "flag": "\ud83c\uddeb\ud83c\uddf7",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 22,
+      "name": "Italy",
+      "flag": "\ud83c\uddee\ud83c\uddf9",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 23,
+      "name": "Spain",
+      "flag": "\ud83c\uddea\ud83c\uddf8",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 24,
+      "name": "Russia",
+      "flag": "\ud83c\uddf7\ud83c\uddfa",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 25,
+      "name": "Argentina",
+      "flag": "\ud83c\udde6\ud83c\uddf7",
+      "eligibleDestinations": [1, 2]
+    }, 
+    {
+      "id": 26,
+      "name": "Turkey",
+      "flag": "🇹🇷",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 27,
+      "name": "Indonesia",
+      "flag": "🇮🇩",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 28,
+      "name": "Pakistan",
+      "flag": "🇵🇰",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 29,
+      "name": "Bangladesh",
+      "flag": "🇧🇩",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 30,
+      "name": "Thailand",
+      "flag": "🇹🇭",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 31,
+      "name": "Malaysia",
+      "flag": "🇲🇾",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 32,
+      "name": "Singapore",
+      "flag": "🇸🇬",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 33,
+      "name": "Vietnam",
+      "flag": "🇻🇳",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 34,
+      "name": "Cambodia",
+      "flag": "🇰🇭",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 35,
+      "name": "Laos",
+      "flag": "🇱🇦",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 36,
+      "name": "Myanmar",
+      "flag": "🇲🇲",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 37,
+      "name": "Brunei",
+      "flag": "🇧🇳",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 38,
+      "name": "East Timor",
+      "flag": "🇹🇱",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 39,
+      "name": "Taiwan",
+      "flag": "🇹🇼",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 40,
+      "name": "Hong Kong",
+      "flag": "🇭🇰",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 41,
+      "name": "Iran",
+      "flag": "🇮🇷",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 42,
+      "name": "Iraq",
+      "flag": "🇮🇶",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 43,
+      "name": "Israel",
+      "flag": "🇮🇱",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 44,
+      "name": "Jordan",
+      "flag": "🇯🇴",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 45,
+      "name": "Lebanon",
+      "flag": "🇱🇧",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 46,
+      "name": "Syria",
+      "flag": "🇸🇾",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 47,
+      "name": "Yemen",
+      "flag": "🇾🇪",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 48,
+      "name": "Palestine",
+      "flag": "🇵🇸",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 49,
+      "name": "Armenia",
+      "flag": "🇦🇲",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 50,
+      "name": "Georgia",
+      "flag": "🇬🇪",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 51,
+      "name": "Azerbaijan",
+      "flag": "🇦🇿",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 52,
+      "name": "Kazakhstan",
+      "flag": "🇰🇿",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 53,
+      "name": "Uzbekistan",
+      "flag": "🇺🇿",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 54,
+      "name": "Kyrgyzstan",
+      "flag": "🇰🇬",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 55,
+      "name": "Tajikistan",
+      "flag": "🇹🇯",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 56,
+      "name": "Turkmenistan",
+      "flag": "🇹🇲",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 57,
+      "name": "Mongolia",
+      "flag": "🇲🇳",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 58,
+      "name": "North Korea",
+      "flag": "🇰🇵",
+      "eligibleDestinations": [1, 2]
+    },
+    {
+      "id": 59,
+      "name": "Peru",
+      "flag": "🇵🇪",
+      "eligibleDestinations": [1, 2]
+    },
+        {
+          "id": 60,
+          "name": "Colombia",
+          "flag": "🇨🇴",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 61,
+          "name": "Venezuela",
+          "flag": "🇻🇪",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 62,
+          "name": "Ecuador",
+          "flag": "🇪🇨",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 63,
+          "name": "Chile",
+          "flag": "🇨🇱",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 64,
+          "name": "Uruguay",
+          "flag": "🇺🇾",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 65,
+          "name": "Paraguay",
+          "flag": "🇵🇾",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 66,
+          "name": "Bolivia",
+          "flag": "🇧🇴",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 67,
+          "name": "Guyana",
+          "flag": "🇬🇾",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 68,
+          "name": "Suriname",
+          "flag": "🇸🇷",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 69,
+          "name": "Cuba",
+          "flag": "🇨🇺",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 70,
+          "name": "Dominican Republic",
+          "flag": "🇩🇴",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 71,
+          "name": "Haiti",
+          "flag": "🇭🇹",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 72,
+          "name": "Jamaica",
+          "flag": "🇯🇲",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 73,
+          "name": "Trinidad and Tobago",
+          "flag": "🇹🇹",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 74,
+          "name": "Barbados",
+          "flag": "🇧🇧",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 75,
+          "name": "Bahamas",
+          "flag": "🇧🇸",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 76,
+          "name": "Kenya",
+          "flag": "🇰🇪",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 77,
+          "name": "Nigeria",
+          "flag": "🇳🇬",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 78,
+          "name": "Egypt",
+          "flag": "🇪🇬",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 79,
+          "name": "Morocco",
+          "flag": "🇲🇦",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 80,
+          "name": "Algeria",
+          "flag": "🇩🇿",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 81,
+          "name": "Tunisia",
+          "flag": "🇹🇳",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 82,
+          "name": "Ghana",
+          "flag": "🇬🇭",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 83,
+          "name": "Senegal",
+          "flag": "🇸🇳",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 84,
+          "name": "Ethiopia",
+          "flag": "🇪🇹",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 85,
+          "name": "Tanzania",
+          "flag": "🇹🇿",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 86,
+          "name": "Uganda",
+          "flag": "🇺🇬",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 87,
+          "name": "Rwanda",
+          "flag": "🇷🇼",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 88,
+          "name": "Madagascar",
+          "flag": "🇲🇬",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 89,
+          "name": "New Zealand",
+          "flag": "🇳🇿",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 90,
+          "name": "Papua New Guinea",
+          "flag": "🇵🇬",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 91,
+          "name": "Fiji",
+          "flag": "🇫🇯",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 92,
+          "name": "Solomon Islands",
+          "flag": "🇸🇧",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 93,
+          "name": "Vanuatu",
+          "flag": "🇻🇺",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 94,
+          "name": "Samoa",
+          "flag": "🇼🇸",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 95,
+          "name": "Tonga",
+          "flag": "🇹🇴",
+          "eligibleDestinations": [1, 2]
+        }, 
+        {
+          "id": 96,
+          "name": "Costa Rica",
+          "flag": "🇨🇷",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 97,
+          "name": "El Salvador",
+          "flag": "🇸🇻",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 98,
+          "name": "Guatemala",
+          "flag": "🇬🇹",
+          "eligibleDestinations": [1, 2]
+        },
+        {
+          "id": 99,
+          "name": "Honduras",
+          "flag": "🇭🇳",
+          "eligibleDestinations": [1, 2]
+        },
+              {
+                "id": 100,
+                "name": "Nicaragua",
+                "flag": "🇳🇮",
+                "eligibleDestinations": [1, 2]
+              }
+            ]
+          }
+        
+      

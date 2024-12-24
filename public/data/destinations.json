@@ -1,0 +1,198 @@
+{
+  "destinations": [
+    {
+      "id": 1,
+      "name": "Oman",
+      "flag": "🇴🇲",
+      "visaTypes": [
+        {
+          "id": 1,
+          "name": "10 Days Visa",
+          "processingTime": "1-2 business days",
+          "cost": "15 OMR"
+        },
+        {
+          "id": 2,
+          "name": "30 Days Visa",
+          "processingTime": "1-2 business days",
+          "cost": "30 OMR"
+        }
+      ],
+      "accuracyIndex": 98,
+      "approvalRate": 95,
+      "requirements": ["Passport", "Photo"]
+    },
+    {
+      "id": 2,
+      "name": "United Arab Emirates",
+      "flag": "🇦🇪",
+      "visaTypes": [
+        {
+          "id": 3,
+          "name": "30 Days Visa",
+          "processingTime": "3-5 business days",
+          "cost": "45 OMR"
+        },
+        {
+          "id": 4,
+          "name": "60 Days Visa",
+          "processingTime": "3-5 business days",
+          "cost": "56 OMR"
+        }
+      ],
+      "accuracyIndex": 95,
+      "approvalRate": 92,
+      "requirements": ["Passport", "Photo", "Itinerary"]
+    },
+    {
+      "id": 3,
+      "name": "Bahrain",
+      "flag": "🇧🇭",
+      "visaTypes": [
+        {
+          "id": 5,
+          "name": "14 Days Visa",
+          "processingTime": "2-3 business days",
+          "cost": "20 OMR"
+        },
+        {
+          "id": 6,
+          "name": "30 Days Visa",
+          "processingTime": "2-3 business days",
+          "cost": "35 OMR"
+        }
+      ],
+      "accuracyIndex": 93,
+      "approvalRate": 90,
+      "requirements": ["Passport", "Photo"]
+    },
+    {
+      "id": 4,
+      "name": "Qatar",
+      "flag": "🇶🇦",
+      "visaTypes": [
+        {
+          "id": 7,
+          "name": "30 Days Visa",
+          "processingTime": "3-4 business days",
+          "cost": "40 OMR"
+        }
+      ],
+      "accuracyIndex": 92,
+      "approvalRate": 88,
+      "requirements": ["Passport", "Photo"]
+    },
+    {
+      "id": 5,
+      "name": "Armenia",
+      "flag": "🇦🇲",
+      "visaTypes": [
+        {
+          "id": 8,
+          "name": "Tourist Visa",
+          "processingTime": "3-5 business days",
+          "cost": "30 OMR"
+        }
+      ],
+      "accuracyIndex": 90,
+      "approvalRate": 85,
+      "requirements": ["Passport", "Photo", "Hotel Booking"]
+    },
+    {
+      "id": 6,
+      "name": "Azerbaijan",
+      "flag": "🇦🇿",
+      "visaTypes": [
+        {
+          "id": 9,
+          "name": "Tourist Visa",
+          "processingTime": "3-5 business days",
+          "cost": "35 OMR"
+        }
+      ],
+      "accuracyIndex": 91,
+      "approvalRate": 86,
+      "requirements": ["Passport", "Photo"]
+    },
+    {
+      "id": 7,
+      "name": "Sri Lanka",
+      "flag": "🇱🇰",
+      "visaTypes": [
+        {
+          "id": 10,
+          "name": "Tourist Visa",
+          "processingTime": "3-4 business days",
+          "cost": "25 OMR"
+        }
+      ],
+      "accuracyIndex": 89,
+      "approvalRate": 87,
+      "requirements": ["Passport", "Photo"]
+    },
+    {
+      "id": 8,
+      "name": "Georgia",
+      "flag": "🇬🇪",
+      "visaTypes": [
+        {
+          "id": 11,
+          "name": "Tourist Visa",
+          "processingTime": "4-5 business days",
+          "cost": "40 OMR"
+        }
+      ],
+      "accuracyIndex": 88,
+      "approvalRate": 84,
+      "requirements": ["Passport", "Photo"]
+    },
+    {
+      "id": 9,
+      "name": "Turkey",
+      "flag": "🇹🇷",
+      "visaTypes": [
+        {
+          "id": 12,
+          "name": "Tourist Visa",
+          "processingTime": "5-7 business days",
+          "cost": "50 OMR"
+        }
+      ],
+      "accuracyIndex": 87,
+      "approvalRate": 83,
+      "requirements": ["Passport", "Photo", "Flight Booking"]
+    },
+    {
+      "id": 10,
+      "name": "Maldives",
+      "flag": "🇲🇻",
+      "visaTypes": [
+        {
+          "id": 13,
+          "name": "Tourist Visa",
+          "processingTime": "2-3 business days",
+          "cost": "20 OMR"
+        }
+      ],
+      "accuracyIndex": 95,
+      "approvalRate": 90,
+      "requirements": ["Passport", "Photo", "Hotel Booking"]
+    },
+    {
+      "id": 11,
+      "name": "Thailand",
+      "flag": "🇹🇭",
+      "visaTypes": [
+        {
+          "id": 14,
+          "name": "Tourist Visa",
+          "processingTime": "3-5 business days",
+          "cost": "40 OMR"
+        }
+      ],
+      "accuracyIndex": 90,
+      "approvalRate": 85,
+      "requirements": ["Passport", "Photo"]
+    }
+  ]
+}

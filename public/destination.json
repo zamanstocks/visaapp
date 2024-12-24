@@ -1,0 +1,32 @@
+[
+  {
+    "id": "uae",
+    "name": "United Arab Emirates",
+    "code": "UAE",
+    "flag": "🇦��"
+  },
+  {
+    "id": "saudi",
+    "name": "Saudi Arabia", 
+    "code": "KSA",
+    "flag": "🇸🇦"
+  },
+  {
+    "id": "qatar", 
+    "name": "Qatar",
+    "code": "QAT", 
+    "flag": "🇶🇦"
+  },
+  {
+    "id": "oman",
+    "name": "Oman",
+    "code": "OMN",
+    "flag": "🇴🇲"
+  },
+  {
+    "id": "bahrain",
+    "name": "Bahrain",
+    "code": "BHR", 
+    "flag": "🇧🇭"
+  }
+]

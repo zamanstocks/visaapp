@@ -1,0 +1,88 @@
+{
+  "visaOptions": [
+    {
+      "id": 1,
+      "name": "Oman",
+      "flag": "🇴🇲",
+      "visaTypes": [
+        {
+          "id": 101,
+          "name": "Tourist Visa",
+          "processingTime": "3-5 days",
+          "cost": "OMR 20",
+          "features": ["Single Entry", "30 Days Stay"]
+        },
+        {
+          "id": 102,
+          "name": "Business Visa",
+          "processingTime": "2-4 days",
+          "cost": "OMR 30",
+          "features": ["Multiple Entry", "90 Days Stay"]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "United Arab Emirates",
+      "flag": "🇦🇪",
+      "visaTypes": [
+        {
+          "id": 201,
+          "name": "Tourist Visa",
+          "processingTime": "2-4 days",
+          "cost": "AED 250",
+          "features": ["Multiple Entry", "60 Days Stay"]
+        },
+        {
+          "id": 202,
+          "name": "Transit Visa",
+          "processingTime": "24-48 hours",
+          "cost": "AED 100",
+          "features": ["Single Entry", "48 Hours Stay"]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Bahrain",
+      "flag": "🇧🇭",
+      "visaTypes": [
+        {
+          "id": 301,
+          "name": "Tourist Visa",
+          "processingTime": "5-7 days",
+          "cost": "BHD 20",
+          "features": ["Single Entry", "30 Days Stay"]
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Saudi Arabia",
+      "flag": "🇸🇦",
+      "visaTypes": [
+        {
+          "id": 401,
+          "name": "Tourist eVisa",
+          "processingTime": "24-72 hours",
+          "cost": "SAR 440",
+          "features": ["Multiple Entry", "90 Days Stay"]
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Other eVisa Countries",
+      "flag": "🌍",
+      "visaTypes": [
+        {
+          "id": 501,
+          "name": "eVisa for Indians",
+          "processingTime": "2-5 days",
+          "cost": "Varies",
+          "features": ["Single/Multiple Entry", "30-90 Days Stay"]
+        }
+      ]
+    }
+  ]
+}

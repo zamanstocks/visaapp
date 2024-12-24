@@ -1,0 +1,63 @@
+{
+  "visas": [
+    {
+      "id": "oman-express-10",
+      "name": "Express Tourist Visa",
+      "type": "Tourist",
+      "price": 25,
+      "duration": "10 Days",
+      "processingTime": "24 Hours",
+      "requirements": [
+        "Passport",
+        "Photo",
+        "Hotel Booking"
+      ]
+    },
+    {
+      "id": "oman-tourist-30",
+      "name": "Tourist Visa",
+      "type": "Tourist",
+      "price": 52,
+      "duration": "30 Days",
+      "processingTime": "72 Hours",
+      "requirements": [
+        "Passport",
+        "Photo",
+        "Hotel Booking",
+        "Bank Statement",
+        "Return Ticket"
+      ]
+    },
+    {
+      "id": "oman-business-30",
+      "name": "Business Visit Visa",
+      "type": "Business",
+      "price": 78,
+      "duration": "30 Days",
+      "processingTime": "48 Hours",
+      "requirements": [
+        "Passport",
+        "Photo",
+        "Business Letter",
+        "Company Registration",
+        "Invitation Letter"
+      ]
+    },
+    {
+      "id": "oman-work-2year",
+      "name": "Employment Visa",
+      "type": "Work",
+      "price": 156,
+      "duration": "2 Years",
+      "processingTime": "5-7 Days",
+      "requirements": [
+        "Passport",
+        "Photo",
+        "Employment Contract",
+        "Educational Certificates",
+        "Police Clearance",
+        "Medical Report"
+      ]
+    }
+  ]
+}

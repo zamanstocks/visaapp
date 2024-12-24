@@ -1,0 +1,37 @@
+{
+  "requirements": {
+    "1": {
+      "standard": [
+        "Valid Passport",
+        "Passport-sized Photographs",
+        "Travel Itinerary",
+        "Proof of Accommodation",
+        "Travel Insurance"
+      ],
+      "additional": [
+        "Bank Statement",
+        "Invitation Letter (if applicable)"
+      ],
+      "processing_times": {
+        "tourist": "3-5 business days",
+        "business": "5-7 business days"
+      }
+    },
+    "2": {
+      "standard": [
+        "Valid Passport",
+        "Acceptance Letter (for study)",
+        "Financial Proof",
+        "Accommodation Details"
+      ],
+      "additional": [
+        "Medical Insurance",
+        "Sponsor Documents"
+      ],
+      "processing_times": {
+        "study": "4-6 business days",
+        "work": "6-8 business days"
+      }
+    }
+  }
+}

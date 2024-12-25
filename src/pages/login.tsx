@@ -1,34 +1,37 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { 
-  ArrowLeft, Globe, Check, Phone, Mail, ChevronDown,
-  RefreshCw, Shield, Smartphone, HelpCircle, Lock, FileText
+  ArrowLeft, Check, Phone, Mail, ChevronDown,
+  RefreshCw, Shield, Smartphone, HelpCircle, Lock, FileText,
+  UserCircle, LogOut, ChevronRight
 } from 'lucide-react';
+
+type User = {
+  name: string;
+  phone_number: string;
+};
+
+const countries = [
+  { code: '+968', flag: '🇴🇲', name: 'Oman', maxLength: 8 },
+  { code: '+91', flag: '🇮🇳', name: 'India', maxLength: 10 },
+  { code: '+971', flag: '🇦🇪', name: 'UAE', maxLength: 9 },
+  { code: '+966', flag: '🇸🇦', name: 'Saudi Arabia', maxLength: 9 },
+  { code: '+974', flag: '🇶🇦', name: 'Qatar', maxLength: 8 },
+  { code: '+973', flag: '🇧🇭', name: 'Bahrain', maxLength: 8 }
+];
 
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-
+  
   const [formData, setFormData] = useState({
-    // User input in login page
     firstName: '',
     phoneNumber: '',
     email: '',
-    
-    // Data from select.tsx
-    destinationId: searchParams.get('destinationId') || '',
-    destinationName: searchParams.get('destinationName') || '',
-    destinationCode: searchParams.get('destinationCode') || '',
-    nationalityId: searchParams.get('nationalityId') || '',
-    nationalityName: searchParams.get('nationalityName') || '',
-    visaId: searchParams.get('visaId') || '',
-    visaName: searchParams.get('visaName') || '',
-    visaType: searchParams.get('visaType') || '',
-    visaPrice: searchParams.get('visaPrice') || '',
-    visaDuration: searchParams.get('visaDuration') || '',
-    processingTime: searchParams.get('processingTime') || ''
+    destination: searchParams.get('destination') || '',
+    nationality: searchParams.get('nationality') || '',
+    visaType: searchParams.get('visaType') || ''
   });
-
   const [selectedCountry, setSelectedCountry] = useState({
     code: '+968',
     flag: '🇴🇲',
@@ -44,31 +47,56 @@ export default function LoginPage() {
   const [canResend, setCanResend] = useState(false);
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const otpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  const countries = [
-    { code: '+968', flag: '🇴🇲', name: 'Oman', maxLength: 8 },
-    { code: '+91', flag: '🇮🇳', name: 'India', maxLength: 10 },
-    { code: '+971', flag: '🇦🇪', name: 'UAE', maxLength: 9 },
-    { code: '+966', flag: '🇸🇦', name: 'Saudi Arabia', maxLength: 9 },
-    { code: '+974', flag: '🇶🇦', name: 'Qatar', maxLength: 8 },
-    { code: '+973', flag: '🇧🇭', name: 'Bahrain', maxLength: 8 }
-  ];
+  useEffect(() => {
+    const checkSession = async () => {
+      const token = localStorage.getItem('sessionToken');
+      if (token) {
+        try {
+          const response = await fetch('/api/verify-session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token }),
+          });
+
+          const result = await response.json();
+
+          if (response.ok) {
+            setLoggedInUser(result.user);
+            setTimeout(() => {
+              handleContinue();
+            }, 3000);
+          }
+        } catch (error) {
+          console.error('Session check failed:', error);
+          localStorage.removeItem('sessionToken');
+        }
+      }
+      setIsLoading(false);
+    };
+
+    checkSession();
+  }, []);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
-    if (currentStep === 'otp' && countdown > 0) {
+    if (countdown > 0 && !canResend) {
       timer = setInterval(() => {
-        setCountdown((prev) => prev - 1);
+        setCountdown(prev => {
+          if (prev <= 1) {
+            setCanResend(true);
+            return 0;
+          }
+          return prev - 1;
+        });
       }, 1000);
-    } else if (countdown === 0) {
-      setCanResend(true);
     }
-    return () => {
-      if (timer) clearInterval(timer);
-    };
-  }, [currentStep, countdown]);
+    return () => clearInterval(timer);
+  }, [countdown, canResend]);
 
   const handleInputChange = (field: string, value: string) => {
     if (field === 'phoneNumber') {
@@ -97,74 +125,63 @@ export default function LoginPage() {
       });
 
       const result = await response.json();
-      
+
       if (response.ok) {
         setCurrentStep('otp');
         setCountdown(60);
         setCanResend(false);
         setOtpDigits(['', '', '', '', '', '']);
       } else {
-        setErrorMessage(result.error || 'Failed to send OTP. Try again.');
+        setErrorMessage(result.error || 'Failed to send OTP');
       }
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : 'Something went wrong. Please try again.');
+      setErrorMessage(error instanceof Error ? error.message : 'Failed to send OTP');
     } finally {
       setIsSendingOtp(false);
     }
   };
 
-  const handleOtpChange = (index: number, value: string) => {
+  const handleOtpChange = async (index: number, value: string) => {
+    if (value.length > 1) return;
+    
     const newOtpDigits = [...otpDigits];
-    newOtpDigits[index] = value.slice(0, 1);
+    newOtpDigits[index] = value;
     setOtpDigits(newOtpDigits);
-  
+
     if (value && index < 5) {
       otpInputRefs.current[index + 1]?.focus();
     }
-  
+
     if (newOtpDigits.every(digit => digit !== '')) {
       const enteredOtp = newOtpDigits.join('');
-      
-      const verifyOtp = async () => {
-        try {
-          const response = await fetch('/api/verify-otp', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              phoneNumber: formData.phoneNumber,
-              countryCode: selectedCountry.code,
-              otp: enteredOtp,
-              createdAt: new Date().toISOString()
-            }),
-          });
-  
-          const result = await response.json();
-          
-          if (response.ok) {
-            const queryParams = new URLSearchParams({
-              phone: `${selectedCountry.code}${formData.phoneNumber}`,
-              firstName: formData.firstName,
-              email: formData.email || '',
-              destination: searchParams.get('destination') || '',
-              nationality: searchParams.get('nationality') || '',
-              visaType: searchParams.get('visaType') || ''
-            }).toString();
-            
-            router.push(`/form?${queryParams}`);
-          } else {
-            setErrorMessage('Invalid verification code');
-            setOtpDigits(['', '', '', '', '', '']);
-            otpInputRefs.current[0]?.focus();
-          }
-        } catch (error) {
-          console.error('Verification error:', error);
-          setErrorMessage('Verification failed. Please try again.');
+      try {
+        const response = await fetch('/api/verify-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            phoneNumber: formData.phoneNumber,
+            countryCode: selectedCountry.code,
+            otp: enteredOtp,
+            firstName: formData.firstName,
+          }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          localStorage.setItem('sessionToken', result.token);
+          setLoggedInUser(result.user);
+          handleContinue();
+        } else {
+          setErrorMessage(result.error || 'Invalid verification code');
           setOtpDigits(['', '', '', '', '', '']);
           otpInputRefs.current[0]?.focus();
         }
-      };
-  
-      verifyOtp();
+      } catch (error) {
+        setErrorMessage('Verification failed');
+        setOtpDigits(['', '', '', '', '', '']);
+        otpInputRefs.current[0]?.focus();
+      }
     }
   };
 
@@ -173,6 +190,85 @@ export default function LoginPage() {
     setCanResend(false);
     handleSendOTP(new Event('submit') as any);
   };
+
+  const handleContinue = () => {
+    if (!loggedInUser) return;
+  
+    const queryParams = new URLSearchParams({
+      phone: loggedInUser.phone_number,
+      firstName: loggedInUser.name,
+      email: formData.email || '',
+      destination: searchParams.get('destination') || '',
+      nationality: searchParams.get('nationality') || '',
+      visaType: searchParams.get('visaType') || ''
+    });
+  
+    router.push(`/upload-documents?${queryParams.toString()}`);
+  };
+  const handleLogout = () => {
+    localStorage.removeItem('sessionToken');
+    setLoggedInUser(null);
+    setCurrentStep('details');
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin text-blue-600">
+          <RefreshCw className="w-8 h-8" />
+        </div>
+      </div>
+    );
+  }
+
+  if (loggedInUser) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-white to-blue-50 p-4">
+        <div className="max-w-md mx-auto mt-20">
+          <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
+            <div className="w-20 h-20 bg-blue-600 rounded-full mx-auto mb-6 flex items-center justify-center">
+              <UserCircle className="w-12 h-12 text-white" />
+            </div>
+            
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              Welcome back, {loggedInUser.name}!
+            </h1>
+            
+            <p className="text-gray-600 mb-6">
+              You can apply for visas using this account.<br/>
+              Phone: {loggedInUser.phone_number}
+            </p>
+
+            <div className="space-y-4">
+              <button
+                onClick={handleContinue}
+                className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg
+                         flex items-center justify-center gap-2 hover:opacity-90 transition-all"
+              >
+                Continue to Application
+                <ChevronRight className="w-4 h-4" />
+              </button>
+
+              <button
+                onClick={handleLogout}
+                className="w-full py-3 border-2 border-red-500 text-red-500 rounded-lg
+                         flex items-center justify-center gap-2 hover:bg-red-50 transition-all"
+              >
+                <LogOut className="w-4 h-4" />
+                Use Different Account
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-600">
+              Automatically continuing to your application in 3 seconds...
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white to-blue-50 p-4 flex items-center justify-center">
@@ -200,23 +296,6 @@ export default function LoginPage() {
               : `Enter the 6-digit code sent to ${selectedCountry.code} ${formData.phoneNumber}`
             }
           </p>
-          <div className="text-center mt-6">
-            <span 
-              onClick={() => {
-                const queryParams = new URLSearchParams({
-                  firstName: "Zaman",
-                  phone: "78204228",
-                  destination: "United Arab Emirates",
-                  nationality: "Philippines",
-                  visaType: "Tourist Visa",
-                }).toString();
-                router.push(`/form?${queryParams}`);
-              }}
-              className="text-blue-600 hover:text-blue-800 cursor-pointer text-sm md:text-base font-semibold underline decoration-dotted transition duration-300 ease-in-out transform hover:scale-105"
-            >
-              Travel Agent Login
-            </span>
-          </div>
         </div>
 
         {errorMessage && (
@@ -388,18 +467,24 @@ export default function LoginPage() {
         </div>
 
         <div className="mt-8 flex justify-center gap-6">
-          <button className="text-sm text-gray-600 hover:text-gray-900 flex items-center 
-                            gap-2 transition-colors transform hover:scale-105">
+          <button 
+            className="text-sm text-gray-600 hover:text-gray-900 flex items-center 
+                       gap-2 transition-colors transform hover:scale-105"
+          >
             <HelpCircle className="w-4 h-4" />
             Help
           </button>
-          <button className="text-sm text-gray-600 hover:text-gray-900 flex items-center 
-                            gap-2 transition-colors transform hover:scale-105">
+          <button 
+            className="text-sm text-gray-600 hover:text-gray-900 flex items-center 
+                       gap-2 transition-colors transform hover:scale-105"
+          >
             <Lock className="w-4 h-4" />
             Privacy
           </button>
-          <button className="text-sm text-gray-600 hover:text-gray-900 flex items-center 
-                            gap-2 transition-colors transform hover:scale-105">
+          <button 
+            className="text-sm text-gray-600 hover:text-gray-900 flex items-center 
+                       gap-2 transition-colors transform hover:scale-105"
+          >
             <FileText className="w-4 h-4" />
             Terms
           </button>

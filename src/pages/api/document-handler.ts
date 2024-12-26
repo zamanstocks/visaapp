@@ -8,7 +8,11 @@ import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  {
+    auth: { persistSession: false },
+    global: { headers: { 'Content-Type': 'application/json' } }
+  }
 );
 
 const openai = new OpenAI({
@@ -25,6 +29,13 @@ interface FormFields {
   nationality?: string[];
   visaType?: string[];
   fieldName?: string[];
+}
+
+interface FileInfo {
+  filepath: string;
+  filename: string;
+  type: string;
+  size: number;
 }
 
 interface UploadInfo {
@@ -57,6 +68,7 @@ interface PassportData {
 }
 
 interface ApplicationData {
+  id?: string;
   user_details: {
     name: string;
     phone: string;
@@ -91,28 +103,23 @@ const parseQueryParams = (url: string): Record<string, string> => {
 };
 
 const sanitizeFields = (fields: FormFields, query: Record<string, string>): {[key: string]: string} => {
-  const sanitized = {
+  return {
     firstName: fields.firstName?.[0]?.trim() || query.firstName || '',
-    phone: fields.phone?.[0]?.trim() || query.phone || '',
+    phone: fields.phone?.[0]?.trim().replace(/\D/g, '') || query.phone?.replace(/\D/g, '') || '',
     email: fields.email?.[0]?.trim() || query.email || '',
     destination: fields.destination?.[0]?.toUpperCase().trim() || query.destination?.toUpperCase() || '',
     nationality: fields.nationality?.[0]?.toUpperCase().trim() || query.nationality?.toUpperCase() || '',
     visaType: fields.visaType?.[0]?.trim() || query.visaType || '',
     fieldName: fields.fieldName?.[0]?.toLowerCase().trim() || ''
   };
-  logData('Sanitized Fields', sanitized);
-  return sanitized;
 };
 
 async function processPassportImage(imageBuffer: Buffer, isLastPage: boolean = false): Promise<PassportData | null> {
   try {
-    console.log('\n[Passport Processing Started]');
-    console.log(`Processing ${isLastPage ? 'last page' : 'main page'} of passport`);
-    
     const base64Image = imageBuffer.toString('base64');
     const systemPrompt = isLastPage
-      ? "Extract mother's name and marital status from Indian passport last page. For non-Indian passports or unclear data, return null for these fields."
-      : "Extract all visible passport information with high precision, ensuring standardized format for gender, dates, and country names.";
+      ? "Extract mother's name and marital status from Indian passport last page."
+      : "Extract all visible passport information with standardized format for gender, dates, and country names.";
     
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
@@ -140,40 +147,23 @@ async function processPassportImage(imageBuffer: Buffer, isLastPage: boolean = f
                 "mother_name": null,
                 "father_name": null,
                 "marital_status": ""
-              }
-              Rules:
-              - Gender: "MALE" or "FEMALE" only
-              - Countries and names in UPPERCASE
-              - Dates format: YYYY-MM-DD
-              - Default country_of_birth to nationality if unspecified
-              - Mother/father name: null for non-Indian passports
-              - Marital status: "SINGLE"/"MARRIED"/"" if unclear`
-            },
-            {
-              type: "image_url",
-              image_url: { url: `data:image/jpeg;base64,${base64Image}` }
-            }
+              }` },
+            { type: "image_url", image_url: { url: `data:image/jpeg;base64,${base64Image}` } }
           ]
         }
       ],
       temperature: 0
     });
 
-    logData('OpenAI API Response', {
-      id: response.id,
-      model: response.model,
-      created: response.created,
-      response_content: response.choices[0]?.message?.content
-    });
-
     const content = response.choices[0]?.message?.content;
     if (!content) return null;
     
-    const cleanedContent = content.replace(/[\u200B-\u200D\uFEFF]/g, '')
-                                 .replace(/```json\s*|\s*```/g, '')
-                                 .trim();
-    
-    const parsedJSON = JSON.parse(cleanedContent);
+    const parsedJSON = JSON.parse(
+      content.replace(/[\u200B-\u200D\uFEFF]/g, '')
+             .replace(/```json\s*|\s*```/g, '')
+             .trim()
+    );
+
     return {
       ...parsedJSON,
       country_of_birth: parsedJSON.country_of_birth || parsedJSON.nationality,
@@ -195,22 +185,37 @@ async function processPassportImage(imageBuffer: Buffer, isLastPage: boolean = f
 async function updateVisaApplication(
   applicationData: ApplicationData,
   isLastPage: boolean = false
-): Promise<void> {
+): Promise<string> {
   const isIndianPassport = applicationData.user_details.nationality.toLowerCase() === 'india';
   const fileKey = isIndianPassport && !isLastPage ? 'passport_front' : applicationData.upload_info.fieldName;
 
-  const { data: existingApp, error: fetchError } = await supabase
+  const applicationIdentifier = applicationData.passport_data?.passport_number 
+    ? `${applicationData.passport_data.passport_number}-${applicationData.visa_details.destination}`
+    : null;
+
+  const { data: existingApps, error: fetchError } = await supabase
     .from('visa_applications')
     .select('*')
     .eq('phone_number', applicationData.user_details.phone)
-    .eq('status', 'draft')
-    .single();
+    .eq('status', 'draft');
 
   if (fetchError && fetchError.code !== 'PGRST116') {
-    throw new Error('Failed to fetch application');
+    throw new Error('Failed to fetch applications');
   }
 
-  const files = existingApp?.files || {};
+  let existingApp = null;
+  if (existingApps && applicationIdentifier) {
+    existingApp = existingApps.find(app => 
+      app.passport_data?.passport_number === applicationData.passport_data?.passport_number &&
+      app.destination === applicationData.visa_details.destination
+    );
+  } else if (existingApps) {
+    existingApp = existingApps
+      .filter(app => !app.passport_data?.passport_number)
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0];
+  }
+
+  let files: Record<string, FileInfo> = existingApp?.files || {};
   files[fileKey] = {
     filepath: applicationData.upload_info.filepath,
     filename: applicationData.upload_info.filename,
@@ -226,40 +231,43 @@ async function updateVisaApplication(
     nationality: applicationData.user_details.nationality,
     email: applicationData.user_details.email,
     passport_data: applicationData.passport_data || existingApp?.passport_data,
+    application_identifier: applicationIdentifier,
     files,
     files_uploaded: Object.keys(files).filter(k => files[k]).length,
     is_indian_passport: isIndianPassport,
     total_files_required: isIndianPassport ? 3 : 2,
     document_status: 'processing',
+    updated_at: new Date().toISOString()
   };
 
   if (!existingApp) {
-    const { error: insertError } = await supabase
+    const { data, error: insertError } = await supabase
       .from('visa_applications')
-      .insert([updateData]);
+      .insert([{
+        ...updateData,
+        created_at: new Date().toISOString(),
+        status: 'draft'
+      }])
+      .select('id')
+      .single();
+
     if (insertError) throw new Error(`Failed to create application: ${insertError.message}`);
+    return data.id;
   } else {
     const { error: updateError } = await supabase
       .from('visa_applications')
       .update(updateData)
       .eq('id', existingApp.id);
-    if (updateError) throw new Error(`Failed to update application: ${updateError.message}`);
-  }
 
-  logData('Supabase Update', { existingApp, updateData });
+    if (updateError) throw new Error(`Failed to update application: ${updateError.message}`);
+    return existingApp.id;
+  }
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  console.log('\n[API Request Started]', new Date().toISOString());
-  console.log('Method:', req.method);
-  console.log('URL:', req.url);
-
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
-
-  const queryParams = parseQueryParams(`http://localhost${req.url}`);
-  logData('Query Parameters', queryParams);
 
   const uploadDir = path.join(process.cwd(), 'public', 'uploads');
   await fs.promises.mkdir(uploadDir, { recursive: true });
@@ -283,14 +291,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
     });
 
-    logData('Received Form Fields', fields);
-    logData('Received Files', files);
-
     const file = files.file?.[0];
     if (!file?.mimetype) {
       return res.status(400).json({ error: 'No file provided or invalid file type' });
     }
 
+    const queryParams = parseQueryParams(`http://localhost${req.url}`);
     const sanitizedFields = sanitizeFields(fields, queryParams);
     const imageBuffer = await fs.promises.readFile(file.filepath);
     const isLastPage = sanitizedFields.fieldName.includes('last') || sanitizedFields.fieldName.includes('back');
@@ -326,12 +332,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     };
 
-    await updateVisaApplication(applicationData, isLastPage);
-    logData('Final Application Data', applicationData);
+    const applicationId = await updateVisaApplication(applicationData, isLastPage);
     
     res.status(200).json({ 
       success: true, 
-      data: applicationData 
+      data: {
+        id: applicationId,
+        processedData: applicationData 
+      }
     });
   } catch (error) {
     console.error('\n[Request Processing Error]', error);

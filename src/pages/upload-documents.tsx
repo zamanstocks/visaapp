@@ -1,5 +1,6 @@
-import { useSearchParams, useRouter } from 'next/navigation';
-import { ChangeEvent, useState, useEffect } from 'react';
+// src/pages/upload-documents.tsx
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import { Upload, CheckCircle, ArrowLeft, AlertCircle, Camera, FileText, X, Loader2 } from 'lucide-react';
 
 interface ProcessedData {
@@ -32,18 +33,13 @@ interface ProcessedData {
   };
 }
 
-interface UploadComponentProps {
-  type: string;
-  title: string;
-  description: string;
-  onUpload: (e: ChangeEvent<HTMLInputElement>) => void;
-  isUploaded: boolean;
-  isDisabled: boolean;
-  isProcessing: boolean;
-  processStage?: string;
-  uploadError?: string;
-  fileName?: string;
-  onRemove?: () => void;
+interface ApiResponse {
+  success: boolean;
+  data?: {
+    id: string;
+    processedData: ProcessedData;
+  };
+  error?: string;
 }
 
 interface FileUpload {
@@ -55,6 +51,20 @@ interface FileUpload {
 
 interface FileUploads {
   [key: string]: FileUpload;
+}
+
+interface UploadComponentProps {
+  type: string;
+  title: string;
+  description: string;
+  onUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  isUploaded: boolean;
+  isDisabled: boolean;
+  isProcessing: boolean;
+  processStage?: string;
+  uploadError?: string;
+  fileName?: string;
+  onRemove?: () => void;
 }
 
 const ProcessStages = [
@@ -111,20 +121,20 @@ const DocumentUpload: React.FC<UploadComponentProps> = ({
         onChange={onUpload}
         disabled={isDisabled || isProcessing}
       />
-      <div
-        className={`relative border-2 border-dashed rounded-xl p-6 text-center 
+      <div className={`relative border-2 border-dashed rounded-xl p-6 text-center 
                     transition duration-200 ease-in-out group
                     ${isDisabled ? 'border-gray-200 bg-gray-50' : 
                       isUploaded ? 'bg-green-50 border-green-300' : 
                       uploadError ? 'bg-red-50 border-red-300' : 
-                      'border-gray-200 hover:border-blue-400'}`}
-      >
+                      'border-gray-200 hover:border-blue-400'}`}>
         {isUploaded ? (
           <div className="space-y-2">
             <CheckCircle className="h-8 w-8 text-green-500 mx-auto animate-bounce" />
             <span className="text-green-600 font-medium block">Successfully Uploaded</span>
             {fileName && (
-              <span className="text-sm text-gray-500 break-all bg-green-100/50 px-2 py-1 rounded inline-block max-w-full truncate">{fileName}</span>
+              <span className="text-sm text-gray-500 break-all bg-green-100/50 px-2 py-1 rounded inline-block max-w-full truncate">
+                {fileName}
+              </span>
             )}
           </div>
         ) : isProcessing ? (
@@ -141,12 +151,8 @@ const DocumentUpload: React.FC<UploadComponentProps> = ({
               <Upload className="w-6 h-6 text-blue-500 group-hover:-translate-y-0.5 transition-transform" />
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-700">
-                Click or drag file to upload
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                Supported: JPG, PNG (max 10MB)
-              </p>
+              <p className="text-sm font-medium text-gray-700">Click or drag file to upload</p>
+              <p className="text-xs text-gray-500 mt-1">Supported: JPG, PNG (max 10MB)</p>
             </div>
             {uploadError && (
               <div className="text-sm text-red-600 mt-2 bg-red-50 p-2 rounded flex items-center gap-2 justify-center animate-shake">
@@ -162,21 +168,18 @@ const DocumentUpload: React.FC<UploadComponentProps> = ({
 );
 
 export default function DocumentUploadForm() {
-  const searchParams = useSearchParams();
   const router = useRouter();
   const [uploads, setUploads] = useState<FileUploads>({});
   const [message, setMessage] = useState<string | null>(null);
   const [processingField, setProcessingField] = useState<string | null>(null);
   const [currentStage, setCurrentStage] = useState<string>(ProcessStages[0]);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [applicationId, setApplicationId] = useState<string | null>(null);
 
-  const destination = searchParams.get('destination')?.toUpperCase() || '';
-  const visaType = searchParams.get('visaType') || '';
-  const nationality = searchParams.get('nationality')?.toUpperCase() || '';
-  const phone = searchParams.get('phone') || '';
+  const { destination, visaType, nationality, phone } = router.query;
 
   useEffect(() => {
-    const initialUploads: FileUploads = nationality.toLowerCase() === 'india' 
+    const initialUploads: FileUploads = String(nationality).toLowerCase() === 'india' 
       ? {
           passportFront: { file: null, uploaded: false },
           passportLastPage: { file: null, uploaded: false },
@@ -190,13 +193,13 @@ export default function DocumentUploadForm() {
   }, [nationality]);
 
   useEffect(() => {
-    if (isCompleted) {
+    if (isCompleted && applicationId) {
       const timer = setTimeout(() => {
-        router.push(`/verification?phone=${encodeURIComponent(phone)}`);
+        router.push(`/verification?id=${applicationId}`);
       }, 1500);
       return () => clearTimeout(timer);
     }
-  }, [isCompleted, router, phone]);
+  }, [isCompleted, router, applicationId]);
 
   const checkCompletion = (updatedUploads: FileUploads) => {
     const allUploaded = Object.values(updatedUploads).every(upload => upload.uploaded);
@@ -213,7 +216,7 @@ export default function DocumentUploadForm() {
     }
   };
 
-  const handleFileUpload = async (e: ChangeEvent<HTMLInputElement>, fieldName: string) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: string) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -243,9 +246,10 @@ export default function DocumentUploadForm() {
     formData.append('file', file);
     formData.append('fieldName', fieldName);
     
-    searchParams.forEach((value, key) => {
-      if (value) formData.append(key, value);
-    });
+    if (destination) formData.append('destination', String(destination));
+    if (visaType) formData.append('visaType', String(visaType));
+    if (nationality) formData.append('nationality', String(nationality));
+    if (phone) formData.append('phone', String(phone));
 
     try {
       await simulateProcess();
@@ -254,18 +258,19 @@ export default function DocumentUploadForm() {
         body: formData,
       });
 
-      const result = await response.json();
+      const result = await response.json() as ApiResponse;
 
-      if (response.ok) {
+      if (response.ok && result.success && result.data) {
         const updatedUploads = {
           ...uploads,
           [fieldName]: { 
             file, 
             uploaded: true,
-            processedData: result.data
+            processedData: result.data.processedData
           }
         };
         setUploads(updatedUploads);
+        setApplicationId(result.data.id);
         checkCompletion(updatedUploads);
         setMessage(null);
       } else {
@@ -307,9 +312,7 @@ export default function DocumentUploadForm() {
         <nav className="flex items-center justify-between">
           <button 
             onClick={() => router.back()}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/80 
-                     backdrop-blur border border-gray-200 hover:border-blue-300 
-                     transition-all shadow-sm hover:shadow group"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/80 backdrop-blur border border-gray-200 hover:border-blue-300 transition-all shadow-sm hover:shadow group"
           >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
             <span>Back</span>
@@ -356,7 +359,7 @@ export default function DocumentUploadForm() {
         )}
 
         {message && (
-          <div className="flex items-center justify-center gap-2 p-4 bg-red-50 text-red-600 rounded-lg animate-shake">
+          <div className="fixed bottom-6 right-6 flex items-center gap-2 px-4 py-3 bg-red-50 text-red-600 rounded-lg animate-shake">
             <AlertCircle className="w-5 h-5" />
             <p>{message}</p>
           </div>

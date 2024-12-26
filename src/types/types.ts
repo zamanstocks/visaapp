@@ -1,4 +1,6 @@
 // types.ts
+
+// Base interfaces for visa-related data
 export interface VisaType {
   id: number;
   name: string;
@@ -39,4 +41,56 @@ export interface Testimonial {
   content: string;        // The testimonial text
   rating: number;         // Rating given by the user (likely out of 5)
   avatar: string;         // Avatar/photo of the testimonial giver
+}
+
+// Component-specific interfaces
+export interface DropdownOptionProps {
+  flag: string;
+  name: string;
+  subtitle?: string;
+  onClick: () => void;
+}
+
+export interface Stats {
+  value: string;
+  label: string;
+  description: string;
+}
+
+// API and state management interfaces
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  error?: string;
+}
+
+export interface ApplicationState {
+  destinations: Destination[];
+  nationalities: Nationality[];
+  requirements: { [key: string]: VisaRequirements };
+  loading: boolean;
+  error: string | null;
+  selectedDestination: Destination | null;
+  selectedNationality: Nationality | null;
+  selectedVisaType: VisaType | null;
+  searchTerm: string;
+}
+
+// Props interfaces for child components
+export interface VisaCardProps {
+  visaType: VisaType;
+  destination: Destination;
+  onSelect: (visaType: VisaType) => void;
+}
+
+// Navigation and layout interfaces
+export interface NavigationProps {
+  router: any;
+  showBackButton?: boolean;
+}
+
+export interface LayoutProps {
+  children: React.ReactNode;
+  showHeader?: boolean;
+  showFooter?: boolean;
 }

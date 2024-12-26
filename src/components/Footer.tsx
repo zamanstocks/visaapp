@@ -1,118 +1,161 @@
+// src/components/Footer.tsx
+
 import React from 'react';
+import Link from 'next/link';
+import { Facebook, Instagram, Twitter, Phone, Check, Shield } from 'lucide-react';
 
 const Footer: React.FC = () => {
-  return (
-    <footer className="bg-gradient-to-b from-gray-900 to-black text-white pt-12 pb-6">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
-          <div className="col-span-1">
-            <div className="flex items-center space-x-3 mb-6">
-              <div className="bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg p-2">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-white">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v18m9-9H3" />
-                </svg>
-              </div>
-              <span className="text-3xl font-extrabold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                Zipvisas
-              </span>
-            </div>
-            <p className="text-gray-400 mb-6 text-sm leading-relaxed">
-              Revolutionizing the visa application process with cutting-edge AI and world-class support.
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <div className="flex items-center space-x-2 bg-gray-800 rounded-lg px-3 py-2">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-green-400">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="text-sm text-gray-300">Government Licensed</span>
-              </div>
-              <div className="flex items-center space-x-2 bg-gray-800 rounded-lg px-3 py-2">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-blue-400">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 11c0-3.866-3.582-7-8-7m16 0c-4.418 0-8 3.134-8 7m8 0H4m8 0v6m-4 4h8" />
-                </svg>
-                <span className="text-sm text-gray-300">Secure & Encrypted</span>
-              </div>
-              <div className="flex items-center space-x-2 bg-gray-800 rounded-lg px-3 py-2">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-yellow-400">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3" />
-                </svg>
-                <span className="text-sm text-gray-300">Trusted Since 2013</span>
-              </div>
-            </div>
-          </div>
-          <div className="col-span-1">
-            <h3 className="font-semibold text-gray-100 mb-4">Quick Links</h3>
-            <ul className="space-y-3">
-              <li><a href="#" className="text-gray-400 hover:text-white transition-colors flex items-center space-x-2">
-                <span>▸</span>
-                <span>About Us</span>
-              </a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white transition-colors flex items-center space-x-2">
-                <span>▸</span>
-                <span>Track Application</span>
-              </a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white transition-colors flex items-center space-x-2">
-                <span>▸</span>
-                <span>Support Center</span>
-              </a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white transition-colors flex items-center space-x-2">
-                <span>▸</span>
-                <span>Contact</span>
-              </a></li>
-            </ul>
-          </div>
-          <div className="col-span-1">
-            <h3 className="font-semibold text-gray-100 mb-4">Legal</h3>
-            <ul className="space-y-3">
-              <li><a href="#" className="text-gray-400 hover:text-white transition-colors flex items-center space-x-2">
-                <span>▸</span>
-                <span>Privacy Policy</span>
-              </a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white transition-colors flex items-center space-x-2">
-                <span>▸</span>
-                <span>Terms of Service</span>
-              </a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white transition-colors flex items-center space-x-2">
-                <span>▸</span>
-                <span>Cookie Policy</span>
-              </a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white transition-colors flex items-center space-x-2">
-                <span>▸</span>
-                <span>Disclaimer</span>
-              </a></li>
-            </ul>
-          </div>
-          <div className="col-span-1">
-            <h3 className="font-semibold text-gray-100 mb-4">Contact & Support</h3>
-            <ul className="space-y-3">
-              <li>
-                <p className="text-sm text-gray-400 leading-relaxed">
-                  <strong>Headquarters (Oman):</strong><br />
-                  Zaman Integrated Projects L.L.C<br />
-                  محافظة الداخلية, Oman<br />
-                  Phone: +968 78294228 / 77353039<br />
-                  Email: support@zipoman.co
-                </p>
-              </li>
-              <li>
-                <p className="text-sm text-gray-400 leading-relaxed">
-                  <strong>Branch Office (India):</strong><br />
-                  Hajyar Building, Kalpetta<br />
-                  Kerala, India
-                </p>
-              </li>
-              <li>
-                <p className="text-sm text-gray-400 leading-relaxed">
-                  <strong>Apply via WhatsApp:</strong><br />
-                  77353039 (AVA - AI Visa Expert)
-                </p>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
+ const quickLinks = [
+   { name: 'About Us', href: '/about' },
+   { name: 'Track Application', href: '/track' },
+   { name: 'Support Center', href: '/help' },
+   { name: 'Contact', href: '/contact' }
+ ];
+
+ const legalLinks = [
+   { name: 'Privacy Policy', href: '/privacy' },
+   { name: 'Terms of Service', href: '/terms' },
+   { name: 'Cookie Policy', href: '/cookies' },
+   { name: 'Disclaimer', href: '/disclaimer' }
+ ];
+
+ const socialLinks = [
+   { 
+     name: 'Instagram',
+     icon: <Instagram className="w-5 h-5" />,
+     href: 'https://instagram.com/zipvisa'
+   },
+   { 
+     name: 'Facebook',
+     icon: <Facebook className="w-5 h-5" />,
+     href: 'https://facebook.com/zipvisa'
+   },
+   { 
+     name: 'X (Twitter)',
+     icon: <Twitter className="w-5 h-5" />,
+     href: 'https://x.com/zipvisa'
+   },
+   { 
+     name: 'WhatsApp',
+     icon: <Phone className="w-5 h-5" />,
+     href: 'https://wa.me/message/zipvisa'
+   }
+ ];
+
+ return (
+   <footer className="bg-gradient-to-b from-gray-900 to-black text-white pt-12 pb-6 relative overflow-hidden">
+     {/* Gradient overlay */}
+     <div className="absolute inset-0 bg-grid-pattern opacity-5" />
+     
+     <div className="max-w-7xl mx-auto px-6 relative">
+       <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+         {/* Company Info */}
+         <div className="col-span-1">
+           <div className="flex items-center space-x-2 mb-6">
+             <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
+               zip<span className="text-white">visa.com</span>
+             </span>
+             <div className="h-1.5 w-1.5 rounded-full bg-blue-600 animate-pulse"></div>
+           </div>
+           <p className="text-gray-400 mb-6 text-sm leading-relaxed">
+             Revolutionizing the visa application process with cutting-edge AI and world-class support.
+           </p>
+           <div className="flex flex-wrap gap-4">
+             <div className="group flex items-center space-x-2 bg-gray-800 rounded-lg px-3 py-2 hover:bg-gray-700/50 transition-colors">
+               <Check className="w-5 h-5 text-green-400 group-hover:scale-110 transition-transform" />
+               <span className="text-sm text-gray-300">Government Licensed</span>
+             </div>
+             <div className="group flex items-center space-x-2 bg-gray-800 rounded-lg px-3 py-2 hover:bg-gray-700/50 transition-colors">
+               <Shield className="w-5 h-5 text-blue-400 group-hover:scale-110 transition-transform" />
+               <span className="text-sm text-gray-300">Secure & Encrypted</span>
+             </div>
+           </div>
+           
+           {/* Social Links */}
+           <div className="flex items-center space-x-4 mt-6">
+             {socialLinks.map((link) => (
+               <a
+                 key={link.name}
+                 href={link.href}
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 className="text-gray-400 hover:text-white transition-all hover:scale-110"
+                 aria-label={link.name}
+               >
+                 {link.icon}
+               </a>
+             ))}
+           </div>
+         </div>
+
+         {/* Quick Links */}
+         <div className="col-span-1">
+           <h3 className="font-semibold text-gray-100 mb-4">Quick Links</h3>
+           <ul className="space-y-3">
+             {quickLinks.map((link) => (
+               <li key={link.name}>
+                 <Link 
+                   href={link.href}
+                   className="text-gray-400 hover:text-white transition-colors flex items-center space-x-2 group"
+                 >
+                   <span className="group-hover:translate-x-1 transition-transform">▸</span>
+                   <span>{link.name}</span>
+                 </Link>
+               </li>
+             ))}
+           </ul>
+         </div>
+
+         {/* Legal Links */}
+         <div className="col-span-1">
+           <h3 className="font-semibold text-gray-100 mb-4">Legal</h3>
+           <ul className="space-y-3">
+             {legalLinks.map((link) => (
+               <li key={link.name}>
+                 <Link 
+                   href={link.href}
+                   className="text-gray-400 hover:text-white transition-colors flex items-center space-x-2 group"
+                 >
+                   <span className="group-hover:translate-x-1 transition-transform">▸</span>
+                   <span>{link.name}</span>
+                 </Link>
+               </li>
+             ))}
+           </ul>
+         </div>
+
+         {/* Contact Info */}
+         <div className="col-span-1">
+           <h3 className="font-semibold text-gray-100 mb-4">Contact & Support</h3>
+           <ul className="space-y-3">
+             <li>
+               <p className="text-sm text-gray-400 leading-relaxed">
+                 <strong>Headquarters (Oman):</strong><br />
+                 Zaman Integrated Projects L.L.C<br />
+                 محافظة الداخلية, Oman<br />
+                 Email: support@zipvisa.com
+               </p>
+             </li>
+             <li>
+               <p className="text-sm text-gray-400 leading-relaxed">
+                 <strong>Branch Office (India):</strong><br />
+                 Hajyar Building, Kalpetta<br />
+                 Kerala, India
+               </p>
+             </li>
+           </ul>
+         </div>
+       </div>
+
+       {/* Copyright */}
+       <div className="border-t border-gray-800 pt-8">
+         <p className="text-center text-sm text-gray-400">
+           © {new Date().getFullYear()} zipvisa.com. All rights reserved.
+         </p>
+       </div>
+     </div>
+   </footer>
+ );
 };
 
 export default Footer;

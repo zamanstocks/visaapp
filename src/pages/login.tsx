@@ -13,6 +13,8 @@ type User = {
 
 const countries = [
   { code: '+968', flag: '🇴🇲', name: 'Oman', maxLength: 8 },
+  { code: '+91', flag: 'IN', name: 'India', maxLength: 10 },
+
   { code: '+91', flag: '🇮🇳', name: 'India', maxLength: 10 },
   { code: '+971', flag: '🇦🇪', name: 'UAE', maxLength: 9 },
   { code: '+966', flag: '🇸🇦', name: 'Saudi Arabia', maxLength: 9 },

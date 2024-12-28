@@ -1,351 +1,220 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import formidable from 'formidable';
-import fs from 'fs';
+import formidable, { Fields, Files } from 'formidable';
+import fs from 'fs/promises';
 import path from 'path';
-import { format } from 'date-fns';
 import OpenAI from 'openai';
-import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  {
-    auth: { persistSession: false },
-    global: { headers: { 'Content-Type': 'application/json' } }
-  }
-);
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
-
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 export const config = { api: { bodyParser: false } };
 
-interface FormFields {
-  firstName?: string[];
-  phone?: string[];
-  email?: string[];
-  destination?: string[];
-  nationality?: string[];
-  visaType?: string[];
-  fieldName?: string[];
+interface UploadSession {
+  passport?: Buffer;
+  photo?: Buffer;
 }
 
-interface FileInfo {
-  filepath: string;
-  filename: string;
-  type: string;
-  size: number;
-}
+const sessions: Record<string, UploadSession> = {};
 
-interface UploadInfo {
-  fieldName: string;
-  filename: string;
-  filepath: string;
-  size: number;
-  type: string;
-  timestamp: string;
-}
-
-interface PassportData {
-  passport_number: string;
-  given_name: string;
-  family_name: string;
-  date_of_birth: string;
-  gender: string;
-  issuing_state: string;
-  travel_doc_type: string;
-  issue_date: string;
-  expiry_date: string;
-  place_of_issue: string;
-  country_of_birth: string;
-  place_of_birth: string | null;
-  nationality: string;
-  last_departure_country: string;
-  mother_name: string | null;
-  father_name: string | null;
-  marital_status: string;
-}
-
-interface ApplicationData {
-  id?: string;
-  user_details: {
-    name: string;
-    phone: string;
-    email: string;
-    nationality: string;
-  };
-  visa_details: {
-    destination: string;
-    visa_type: string;
-  };
-  passport_data: PassportData | null;
-  upload_info: UploadInfo;
-}
-
-const logData = (label: string, data: any) => {
-  console.log('\n==========', label, '==========');
-  console.log(JSON.stringify(data, null, 2));
-  console.log('='.repeat(20 + label.length), '\n');
+const generateFileName = (ext: string) => {
+  const date = new Date();
+  return `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${String(date.getHours()).padStart(2, '0')}${String(date.getMinutes()).padStart(2, '0')}${String(date.getSeconds()).padStart(2, '0')}${ext}`;
 };
 
-const parseQueryParams = (url: string): Record<string, string> => {
-  try {
-    const urlObj = new URL(url);
-    const params: Record<string, string> = {};
-    urlObj.searchParams.forEach((value, key) => {
-      params[key] = decodeURIComponent(value);
-    });
-    return params;
-  } catch {
-    return {};
-  }
-};
+async function processPassport(passport: Buffer, photo: Buffer) {
+  console.log('Processing passport and photo');
+  const base64Passport = passport.toString('base64');
+  const base64Photo = photo.toString('base64');
 
-const sanitizeFields = (fields: FormFields, query: Record<string, string>): {[key: string]: string} => {
-  return {
-    firstName: fields.firstName?.[0]?.trim() || query.firstName || '',
-    phone: fields.phone?.[0]?.trim().replace(/\D/g, '') || query.phone?.replace(/\D/g, '') || '',
-    email: fields.email?.[0]?.trim() || query.email || '',
-    destination: fields.destination?.[0]?.toUpperCase().trim() || query.destination?.toUpperCase() || '',
-    nationality: fields.nationality?.[0]?.toUpperCase().trim() || query.nationality?.toUpperCase() || '',
-    visaType: fields.visaType?.[0]?.trim() || query.visaType || '',
-    fieldName: fields.fieldName?.[0]?.toLowerCase().trim() || ''
-  };
-};
-
-async function processPassportImage(imageBuffer: Buffer, isLastPage: boolean = false): Promise<PassportData | null> {
-  try {
-    const base64Image = imageBuffer.toString('base64');
-    const systemPrompt = isLastPage
-      ? "Extract mother's name and marital status from Indian passport last page."
-      : "Extract all visible passport information with standardized format for gender, dates, and country names.";
-    
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: systemPrompt },
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    messages: [{
+      role: "user",
+      content: [
         {
-          role: "user",
-          content: [
-            { type: "text", text: `Extract passport information in this format:
-              {
-                "passport_number": "",
-                "given_name": "",
-                "family_name": "",
-                "date_of_birth": "",
-                "gender": "",
-                "issuing_state": "",
-                "travel_doc_type": "Passport",
-                "issue_date": "",
-                "expiry_date": "",
-                "place_of_issue": "",
-                "country_of_birth": "",
-                "place_of_birth": "",
-                "nationality": "",
-                "last_departure_country": "",
-                "mother_name": null,
-                "father_name": null,
-                "marital_status": ""
-              }` },
-            { type: "image_url", image_url: { url: `data:image/jpeg;base64,${base64Image}` } }
-          ]
-        }
-      ],
-      temperature: 0
-    });
+          type: "text",
+          text: `Analyze the passport and photo provided. Extract the details in the specified format.
+          
+Important formatting rules:
+- All dates must be in ISO format (YYYY-MM-DD)
+- Names should be in UPPERCASE
+- Passport numbers should preserve their exact format
+- Place names should be in Title Case
+- Country names should be in Title Case
 
-    const content = response.choices[0]?.message?.content;
-    if (!content) return null;
-    
-    const parsedJSON = JSON.parse(
-      content.replace(/[\u200B-\u200D\uFEFF]/g, '')
-             .replace(/```json\s*|\s*```/g, '')
-             .trim()
-    );
-
-    return {
-      ...parsedJSON,
-      country_of_birth: parsedJSON.country_of_birth || parsedJSON.nationality,
-      gender: parsedJSON.gender?.toUpperCase() || "",
-      mother_name: parsedJSON.mother_name?.toUpperCase() || null,
-      father_name: parsedJSON.father_name?.toUpperCase() || null,
-      marital_status: parsedJSON.marital_status?.toUpperCase() || "",
-      nationality: parsedJSON.nationality?.toUpperCase() || "",
-      issuing_state: parsedJSON.issuing_state?.toUpperCase() || "",
-      last_departure_country: parsedJSON.last_departure_country?.toUpperCase() || "",
-      place_of_birth: parsedJSON.place_of_birth || null
-    };
-  } catch (error) {
-    console.error('\n[Passport Processing Error]', error);
-    return null;
-  }
+Extract the data in this exact JSON structure:
+{
+  "passport_number": "",
+  "given_name": "",
+  "family_name": "",
+  "date_of_birth": "", // YYYY-MM-DD format
+  "gender": "",
+  "issuing_state": "",
+  "travel_doc_type": "",
+  "issue_date": "", // YYYY-MM-DD format
+  "expiry_date": "", // YYYY-MM-DD format
+  "place_of_issue": "",
+  "nationality": "",
+  "place_of_birth": "",
+  "country_of_birth": "",
+  "last_departure_country": "",
+  "mother_name": null,
+  "father_name": null,
+  "marital_status": ""
 }
 
-async function updateVisaApplication(
-  applicationData: ApplicationData,
-  isLastPage: boolean = false
-): Promise<string> {
-  const isIndianPassport = applicationData.user_details.nationality.toLowerCase() === 'india';
-  const fileKey = isIndianPassport && !isLastPage ? 'passport_front' : applicationData.upload_info.fieldName;
+Example response:
+{
+  "passport_number": "P1234567",
+  "given_name": "JOHN",
+  "family_name": "SMITH",
+  "date_of_birth": "1990-05-15",
+  "gender": "M",
+  "issuing_state": "United Kingdom",
+  "travel_doc_type": "P",
+  "issue_date": "2020-01-01",
+  "expiry_date": "2030-01-01",
+  "place_of_issue": "London",
+  "nationality": "British",
+  "place_of_birth": "Manchester",
+  "country_of_birth": "United Kingdom",
+  "last_departure_country": "France",
+  "mother_name": null,
+  "father_name": null,
+  "marital_status": "Single"
+}`
+        },
+        {
+          type: "image_url",
+          image_url: {
+            url: `data:image/jpeg;base64,${base64Passport}`,
+            detail: "high"
+          }
+        },
+        {
+          type: "image_url",
+          image_url: {
+            url: `data:image/jpeg;base64,${base64Photo}`,
+            detail: "high"
+          }
+        }
+      ]
+    }],
+    max_tokens: 1000,
+    temperature: 0,
+    response_format: { type: "json_object" }
+  });
 
-  const applicationIdentifier = applicationData.passport_data?.passport_number 
-    ? `${applicationData.passport_data.passport_number}-${applicationData.visa_details.destination}`
-    : null;
-
-  const { data: existingApps, error: fetchError } = await supabase
-    .from('visa_applications')
-    .select('*')
-    .eq('phone_number', applicationData.user_details.phone)
-    .eq('status', 'draft');
-
-  if (fetchError && fetchError.code !== 'PGRST116') {
-    throw new Error('Failed to fetch applications');
+  const parsedData = JSON.parse(response.choices[0]?.message?.content || 'null');
+  
+  // Ensure all dates are in ISO format
+  if (parsedData) {
+    ['date_of_birth', 'issue_date', 'expiry_date'].forEach(dateField => {
+      if (parsedData[dateField]) {
+        try {
+          const date = new Date(parsedData[dateField]);
+          parsedData[dateField] = date.toISOString().split('T')[0];
+        } catch (e) {
+          console.error(`Error formatting date for ${dateField}:`, e);
+        }
+      }
+    });
+    
+    // Ensure names are uppercase
+    ['given_name', 'family_name'].forEach(nameField => {
+      if (parsedData[nameField]) {
+        parsedData[nameField] = parsedData[nameField].toUpperCase();
+      }
+    });
+    
+    // Ensure place names and countries are in Title Case
+    ['issuing_state', 'place_of_issue', 'nationality', 'place_of_birth', 'country_of_birth', 'last_departure_country'].forEach(field => {
+      if (parsedData[field]) {
+        parsedData[field] = parsedData[field]
+          .split(' ')
+          .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+          .join(' ');
+      }
+    });
   }
 
-  let existingApp = null;
-  if (existingApps && applicationIdentifier) {
-    existingApp = existingApps.find(app => 
-      app.passport_data?.passport_number === applicationData.passport_data?.passport_number &&
-      app.destination === applicationData.visa_details.destination
-    );
-  } else if (existingApps) {
-    existingApp = existingApps
-      .filter(app => !app.passport_data?.passport_number)
-      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0];
-  }
-
-  let files: Record<string, FileInfo> = existingApp?.files || {};
-  files[fileKey] = {
-    filepath: applicationData.upload_info.filepath,
-    filename: applicationData.upload_info.filename,
-    type: applicationData.upload_info.type,
-    size: applicationData.upload_info.size,
-  };
-
-  const updateData = {
-    phone_number: applicationData.user_details.phone,
-    applicant_name: applicationData.user_details.name,
-    destination: applicationData.visa_details.destination,
-    visa_type: applicationData.visa_details.visa_type,
-    nationality: applicationData.user_details.nationality,
-    email: applicationData.user_details.email,
-    passport_data: applicationData.passport_data || existingApp?.passport_data,
-    application_identifier: applicationIdentifier,
-    files,
-    files_uploaded: Object.keys(files).filter(k => files[k]).length,
-    is_indian_passport: isIndianPassport,
-    total_files_required: isIndianPassport ? 3 : 2,
-    document_status: 'processing',
-    updated_at: new Date().toISOString()
-  };
-
-  if (!existingApp) {
-    const { data, error: insertError } = await supabase
-      .from('visa_applications')
-      .insert([{
-        ...updateData,
-        created_at: new Date().toISOString(),
-        status: 'draft'
-      }])
-      .select('id')
-      .single();
-
-    if (insertError) throw new Error(`Failed to create application: ${insertError.message}`);
-    return data.id;
-  } else {
-    const { error: updateError } = await supabase
-      .from('visa_applications')
-      .update(updateData)
-      .eq('id', existingApp.id);
-
-    if (updateError) throw new Error(`Failed to update application: ${updateError.message}`);
-    return existingApp.id;
-  }
+  return parsedData;
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-  await fs.promises.mkdir(uploadDir, { recursive: true });
-
-  const form = formidable({
-    uploadDir,
-    keepExtensions: true,
-    maxFiles: 1,
-    maxFileSize: 10 * 1024 * 1024,
-    filename: (_name, ext, part) => {
-      const timestamp = format(new Date(), 'yyyyMMdd-HHmmss');
-      return `${part.name || 'unknown'}-${timestamp}${ext}`.toLowerCase().replace(/\s+/g, '-');
-    }
-  });
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const [fields, files] = await new Promise<[FormFields, formidable.Files]>((resolve, reject) => {
+    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+    await fs.mkdir(uploadDir, { recursive: true });
+
+    const form = formidable({
+      uploadDir,
+      keepExtensions: true,
+      filename: (_name, ext) => generateFileName(ext)
+    });
+
+    const formData: [Fields, Files] = await new Promise((resolve, reject) => {
       form.parse(req, (err, fields, files) => {
         if (err) reject(err);
-        else resolve([fields, files]);
+        resolve([fields, files]);
       });
     });
 
+    const [fields, files] = formData;
     const file = files.file?.[0];
-    if (!file?.mimetype) {
-      return res.status(400).json({ error: 'No file provided or invalid file type' });
+    if (!file) return res.status(400).json({ error: 'No file uploaded' });
+
+    const fieldName = fields.fieldName?.[0];
+    const nationality = fields.nationality?.[0];
+    const phone = fields.phone?.[0];
+    const sessionId = `${phone}_${nationality}`;
+
+    if (!sessions[sessionId]) {
+      sessions[sessionId] = {};
     }
 
-    const queryParams = parseQueryParams(`http://localhost${req.url}`);
-    const sanitizedFields = sanitizeFields(fields, queryParams);
-    const imageBuffer = await fs.promises.readFile(file.filepath);
-    const isLastPage = sanitizedFields.fieldName.includes('last') || sanitizedFields.fieldName.includes('back');
-    const passportData = !sanitizedFields.fieldName.includes('photo') 
-      ? await processPassportImage(imageBuffer, isLastPage)
-      : null;
+    const fileBuffer = await fs.readFile(file.filepath);
+    const fileInfo = {
+      filepath: `/uploads/${file.newFilename}`,
+      filename: file.newFilename,
+      type: file.mimetype,
+      size: file.size,
+      timestamp: new Date().toISOString()
+    };
 
-    const timestamp = format(new Date(), 'yyyyMMdd-HHmmss');
-    const newFilename = `${sanitizedFields.firstName || 'unknown'}-${sanitizedFields.fieldName || 'document'}-${timestamp}${path.extname(file.originalFilename || '')}`.toLowerCase().replace(/\s+/g, '-');
-    const newPath = path.join(uploadDir, newFilename);
+    let passportData = null;
+    if (fieldName?.includes('passport')) {
+      sessions[sessionId].passport = fileBuffer;
+    } else if (fieldName === 'photo') {
+      sessions[sessionId].photo = fileBuffer;
+    }
 
-    await fs.promises.rename(file.filepath, newPath);
+    if (sessions[sessionId].passport && sessions[sessionId].photo) {
+      console.log('Both files uploaded, processing OCR');
+      passportData = await processPassport(sessions[sessionId].passport, sessions[sessionId].photo);
+      console.log('OCR Result:', passportData);
+      delete sessions[sessionId];
+    }
 
-    const applicationData: ApplicationData = {
-      user_details: {
-        name: sanitizedFields.firstName,
-        phone: sanitizedFields.phone,
-        email: sanitizedFields.email,
-        nationality: sanitizedFields.nationality
-      },
-      visa_details: {
-        destination: sanitizedFields.destination,
-        visa_type: sanitizedFields.visaType
-      },
+    const processedData = {
       passport_data: passportData,
       upload_info: {
-        fieldName: sanitizedFields.fieldName,
-        filename: newFilename,
-        filepath: `/uploads/${newFilename}`,
-        size: file.size,
-        type: file.mimetype,
-        timestamp
+        fieldName,
+        ...fileInfo
       }
     };
 
-    const applicationId = await updateVisaApplication(applicationData, isLastPage);
-    
-    res.status(200).json({ 
-      success: true, 
+    res.status(200).json({
+      success: true,
       data: {
-        id: applicationId,
-        processedData: applicationData 
+        id: Date.now().toString(),
+        processedData
       }
     });
   } catch (error) {
-    console.error('\n[Request Processing Error]', error);
+    console.error('Handler Error:', error);
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : 'Internal server error'
+      error: error instanceof Error ? error.message : 'Processing failed'
     });
   }
 }
